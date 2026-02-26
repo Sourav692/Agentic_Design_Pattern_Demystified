@@ -28,8 +28,8 @@ from langchain_groq import ChatGroq
 
 # ChatOpenAI: LangChain wrapper for OpenAI's Chat API (GPT-3.5, GPT-4, etc.)
 # from langchain.chat_models import ChatOpenAI
-from langchain_openai import ChatOpenAI
-from databricks_langchain import ChatDatabricks
+from langchain_openai import ChatOpenAI, OpenAIEmbeddings
+from databricks_langchain import ChatDatabricks, DatabricksEmbeddings
 from langchain_groq import ChatGroq
 
 # python-dotenv: Loads environment variables from a .env file
@@ -160,6 +160,72 @@ def get_databricks_llm(model_name: str = "databricks-gpt-5-2", temperature: floa
         endpoint=model_name,
         temperature=temperature
     )
+
+
+# ============================================================================
+# EMBEDDING FACTORY FUNCTIONS
+# ============================================================================
+
+def get_openai_embeddings(model_name: str = "text-embedding-3-small"):
+    """Create and return an OpenAI Embeddings instance."""
+    return OpenAIEmbeddings(model=model_name)
+
+
+def get_databricks_embeddings(model_name: str = "databricks-gte-large-en"):
+    """Create and return a Databricks Embeddings instance."""
+    return DatabricksEmbeddings(endpoint=model_name)
+
+
+_EMBEDDING_FACTORIES = {
+    "openai":     get_openai_embeddings,
+    "databricks": get_databricks_embeddings,
+}
+
+PLATFORM_EMBEDDING_DEFAULTS: dict[str, dict] = {
+    "win32":  {"factory": "openai",     "model": "text-embedding-3-small"},
+    "darwin": {"factory": "databricks", "model": "databricks-gte-large-en"},
+}
+
+
+def get_embeddings(
+    *,
+    provider: str | None = None,
+    model: str | None = None,
+    verbose: bool = True,
+):
+    """
+    Return a ready-to-use embedding model, auto-selecting provider/model
+    by platform when not explicitly supplied.
+
+    Usage in any notebook:
+        from helpers import get_embeddings
+        embeddings = get_embeddings()
+    """
+    import sys
+
+    if provider is None:
+        cfg = PLATFORM_EMBEDDING_DEFAULTS.get(sys.platform)
+        if cfg is None:
+            raise RuntimeError(
+                f"No default embeddings configured for platform {sys.platform!r}. "
+                "Pass provider= and model= explicitly."
+            )
+        provider = cfg["factory"]
+        model = model or cfg["model"]
+
+    factory = _EMBEDDING_FACTORIES.get(provider)
+    if factory is None:
+        raise ValueError(
+            f"Unknown embedding provider {provider!r}. "
+            f"Choose from: {list(_EMBEDDING_FACTORIES)}"
+        )
+
+    embeddings = factory(model_name=model) if model else factory()
+
+    if verbose:
+        print(f"Embeddings initialized: {model or 'default'} (via {provider})")
+
+    return embeddings
 
 
 import sys
