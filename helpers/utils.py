@@ -160,3 +160,61 @@ def get_databricks_llm(model_name: str = "databricks-gpt-5-2", temperature: floa
         endpoint=model_name,
         temperature=temperature
     )
+
+
+import sys
+
+PLATFORM_DEFAULTS: dict[str, dict] = {
+    "win32":  {"factory": "groq",       "model": "openai/gpt-oss-120b"},
+    "darwin": {"factory": "databricks", "model": "databricks-claude-opus-4-6"},
+}
+
+_FACTORIES = {
+    "openai":     get_openai_llm,
+    "groq":       get_groq_llm,
+    "databricks": get_databricks_llm,
+}
+
+
+def get_llm(
+    *,
+    provider: str | None = None,
+    model: str | None = None,
+    temperature: float = 0,
+    verbose: bool = True,
+):
+    """
+    Return a ready-to-use LLM, auto-selecting provider/model by platform
+    when not explicitly supplied.
+
+    Usage in any notebook:
+        from helpers import get_llm
+        llm = get_llm()
+    """
+    if provider is None:
+        cfg = PLATFORM_DEFAULTS.get(sys.platform)
+        if cfg is None:
+            raise RuntimeError(
+                f"No default LLM configured for platform {sys.platform!r}. "
+                "Pass provider= and model= explicitly."
+            )
+        provider = cfg["factory"]
+        model = model or cfg["model"]
+
+    factory = _FACTORIES.get(provider)
+    if factory is None:
+        raise ValueError(
+            f"Unknown provider {provider!r}. Choose from: {list(_FACTORIES)}"
+        )
+
+    kwargs: dict = {"temperature": temperature}
+    if model:
+        kwargs["model_name" if provider != "databricks" else "model_name"] = model
+
+    llm = factory(model_name=model, temperature=temperature) if model else factory(temperature=temperature)
+
+    if verbose:
+        name = getattr(llm, "model_name", None) or getattr(llm, "model", None) or provider
+        print(f"LLM initialized: {name} (via {provider})")
+
+    return llm

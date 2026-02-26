@@ -26,14 +26,6 @@ education-grade notebooks that a reader can follow without prior context.
 
 ## 2. Python Code Cells
 
-- Add a **top-of-cell comment block** for every non-trivial code cell:
-  ```python
-  # ─────────────────────────────────────────────
-  # Purpose : <one-line description of what this cell does>
-  # Input   : <key variables or data it depends on>
-  # Output  : <what it produces or modifies>
-  # ─────────────────────────────────────────────
-  ```
 - Use **inline comments** (`#`) on lines that contain non-obvious logic, 
   transformations, or magic numbers — not on self-explanatory lines
 - Group logically related lines with a single-line `# --- <label> ---` separator

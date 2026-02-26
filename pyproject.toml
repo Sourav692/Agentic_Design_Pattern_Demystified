@@ -17,44 +17,34 @@ dependencies = [
     "langchain-google-genai>=4.2.0",
     "langchain-nebius",
     "langchain-tavily",
-
     # LangGraph
     "langgraph>=1.0.7",
     "langgraph-swarm<=0.0.14",
     "langgraph-checkpoint>=4.0.0",
     "langgraph-checkpoint-sqlite>=3.0.3",
     "langgraph-checkpoint-postgres>=3.0.3",
-
     # Memory management
     "langmem>=0.0.30",
-
     # Databricks
     "databricks-langchain>=0.13.0",
-
     # API clients
     "openai>=2.15.0",
     "anthropic>=0.76.0",
-
     # Data handling and validation
     "pydantic>=2.12.5",
     "typing-extensions>=4.15.0",
     "protobuf>=6.33.4",
-
     # Document Processing
     "pypdf>=4.0.0",
     "python-docx>=1.1.0",
     "docx2txt>=0.8",
-
     # Text Processing and Embeddings
     "sentence-transformers>=2.2.2",
     "torch>=2.0.0",
-
     # Vector Database
     "chromadb>=0.4.0",
-
     # Database
     "sqlalchemy>=2.0.0",
-
     # Utilities
     "python-dotenv>=1.2.1",
     "tiktoken>=0.12.0",
@@ -63,35 +53,27 @@ dependencies = [
     "tavily-python>=0.7.19",
     "transformers>=4.57.6",
     "wikipedia>=1.4.0",
-
     # Rich console output and visualization
     "rich>=13.9.4",
-
     # Scientific computing
     "scipy>=1.17.0",
     "scikit-learn>=1.8.0",
-
     # Logging and debugging
     "colorlog>=6.10.1",
-
     # JSON handling
     "orjson>=3.11.5",
-
     # Async support
     "aiohttp>=3.13.3",
-
     # Vector store and embeddings
     "faiss-cpu",
-
     # Development and Debugging
     "langchain-experimental>=0.0.50",
     "langsmith>=0.0.80",
-
     # Graph database
     "neo4j",
-
     # Browser automation
     "pyppeteer",
+    "pygraphviz>=1.14",
 ]
 
 [project.optional-dependencies]
@@ -107,4 +89,4 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["."]
+packages = ["helpers"]
